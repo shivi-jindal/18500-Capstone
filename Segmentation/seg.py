@@ -96,23 +96,37 @@ def plot_rms(rms_values, sr, hop_size):
 
     # Initialize a list to store spike times (when RMS is near zero)
     spike_times = []
-
+    valid_spikes = []
+    peak_difference_threshold = 0.08
+    min_spike_difference = 500
+    max_time_difference = 150
+    
     # Iterate through the RMS values to identify near-zero spikes
     for i in range(len(rms_values)):
         if rms_values[i] < epsilon:  # Check if RMS is close to zero
-            if (len(spike_times) == 0 or (time_ms[i] - spike_times[-1]) >= 100):
-                spike_times.append(time_ms[i])
+            # check if it is significantly different than last time
+            if (len(valid_spikes) == 0 or (time_ms[i] - valid_spikes[-1]) >= min_spike_difference):
+                # spike_times.append(time_ms[i])
+                for j in range(i + 1, len(rms_values)):
+                    # find the nearest peak from the spike
+                    if rms_values[j] > rms_values[j - 1] and rms_values[j] > rms_values[j + 1]:  # Local peak
+                        peak_value = rms_values[j]
+                        spike_value = rms_values[i]
+                        # check if this was a significant increase and if spike wasn't super far away (within 150 ms)
+                        if peak_value - spike_value > peak_difference_threshold and abs(time_ms[j] - time_ms[i]) <= max_time_difference:
+                            valid_spikes.append(time_ms[i]) #adding in the beginning of zero time, but make add in peak time/average of the two?
+                            break
 
     # Print out the times of the near-zero RMS spikes
     print(f"Times where RMS is near zero (within epsilon = {epsilon}):")
-    for spike in spike_times:
+    for spike in valid_spikes:
         print(f"Spike at time {spike:.3f} milliseconds")
 
     plt.figure(figsize=(10, 6))
     plt.plot(time_ms, rms_values, label='RMS')
 
     # Mark the steep RMS increase after silence with vertical lines
-    for spike_time in spike_times:
+    for spike_time in valid_spikes:
         # Find the index of the spike time in the time array
         spike_index = np.where(time_ms == spike_time)[0][0]
         
@@ -126,9 +140,6 @@ def plot_rms(rms_values, sr, hop_size):
     plt.legend()
     plt.show()
    
-
-
-
 
 def plot_rms_and_regular(audio_signal, rms_values, sr, hop_size):
     time_audio = np.arange(0, len(audio_signal)) / sr
