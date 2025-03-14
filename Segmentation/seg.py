@@ -39,8 +39,11 @@ def calculate_new_notes(rms_vals, hop_size, sr):
     # Initialize a list to store spike times (when RMS is near zero)
     
     valid_spikes = []
-    peak_difference_threshold = 0.08
+    # difference from the near zero value to the peak of the rms siganl
+    peak_difference_threshold = 0.08 # changing value based on bpm?
+    # not counting the beginning of a note time 
     min_spike_difference = 500
+    # making sure the nearest peak is closer
     max_time_difference = 150
     # Iterate through the RMS values to identify near-zero spikes
     for i in range(len(rms_vals)):
