@@ -9,13 +9,11 @@ def convert_m4a_to_wav(input_file, output_file):
     audio = AudioSegment.from_file(input_file, format="m4a")
     audio.export(output_file, format="wav")
 
-
 def load_audio(file_path):
     y, sr = librosa.load(file_path, sr=None)
     return y, sr
 
 def perform_rms(input_file):
-
     if input_file.endswith(".m4a"):
         wav_file = input_file.replace(".m4a", ".wav")
         convert_m4a_to_wav(input_file, wav_file)
@@ -34,13 +32,13 @@ def perform_rms(input_file):
 def calculate_new_notes(rms_vals, hop_size, sr):
     time_seconds = np.arange(0, len(rms_vals) * hop_size, hop_size) / sr
     time_ms = time_seconds * 1000
-    epsilon = 0.01  # Tolerance for RMS values close to zero
+    epsilon = 0.03  # Tolerance for RMS values close to zero
 
     # Initialize a list to store spike times (when RMS is near zero)
     
     valid_spikes = []
     # difference from the near zero value to the peak of the rms siganl
-    peak_difference_threshold = 0.08 # changing value based on bpm?
+    peak_difference_threshold = 0.06 # changing value based on bpm?
     # not counting the beginning of a note time 
     min_spike_difference = 500
     # making sure the nearest peak is closer
@@ -113,15 +111,13 @@ def plot_rms(rms_values, sr, hop_size):
         # Plot a vertical line at the spike time
         plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
 
-
-
     plt.title('RMS of Audio Signal')
     plt.xlabel('Time (milliseconds)')
     plt.ylabel('RMS')
     plt.grid(True)
     plt.legend()
     plt.show()
-   
+    return valid_spikes
 
 def plot_rms_and_regular(audio_signal, rms_values, sr, hop_size):
     time_audio = np.arange(0, len(audio_signal)) / sr
@@ -148,10 +144,8 @@ def plot_rms_and_regular(audio_signal, rms_values, sr, hop_size):
     plt.tight_layout()
     plt.show()
 
-rms_vals, sr, og_signal = perform_rms("tenlittlemonkeys.m4a")
+rms_vals, sr, og_signal = perform_rms("../Audio/Songs/monkeys.m4a")
 plot_rms(rms_vals, sr, 512)
 # plot_rms_and_regular(og_signal, rms_vals, sr, 512)
 segs = calculate_new_notes(rms_vals, 512, sr)
-print(segs)
-    
     
