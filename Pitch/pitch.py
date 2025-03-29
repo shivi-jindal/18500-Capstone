@@ -75,8 +75,8 @@ def plot_comb_filter_response(freqs, spectrum, fundamental_range=(50, 1000)):
     plt.show()
 
 
-rms_vals, sr, og_signal = perform_rms("../Audio/Songs/twinkle.m4a")
-segs = calculate_new_notes(rms_vals, 512, sr)
-detected_frequencies = detect_notes(og_signal, sr, segs)
-detected_notes = [freq_to_note(f) for f in detected_frequencies] #list of tuples of (note_num, note)
-print("Detected Notes:", detected_notes)
+# rms_vals, sr, og_signal = perform_rms("../Audio/Songs/twinkle.m4a")
+# segs = calculate_new_notes(rms_vals, 512, sr)
+# detected_frequencies = detect_notes(og_signal, sr, segs)
+# detected_notes = [freq_to_note(f) for f in detected_frequencies] #list of tuples of (note_num, note)
+# print("Detected Notes:", detected_notes)

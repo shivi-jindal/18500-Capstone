@@ -95,28 +95,28 @@ def plot_rms(rms_values, sr, hop_size):
                             break
 
     # Print out the times of the near-zero RMS spikes
-    print(f"Times where RMS is near zero (within epsilon = {epsilon}):")
-    for spike in valid_spikes:
-        print(f"Spike at time {spike/1000:.3f} milliseconds")
+    # print(f"Times where RMS is near zero (within epsilon = {epsilon}):")
+    # for spike in valid_spikes:
+    #     print(f"Spike at time {spike/1000:.3f} milliseconds")
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(time_ms, rms_values, label='RMS')
+    # plt.figure(figsize=(10, 6))
+    # plt.plot(time_ms, rms_values, label='RMS')
 
 
-    # Mark the steep RMS increase after silence with vertical lines
-    for spike_time in valid_spikes:
-        # Find the index of the spike time in the time array
-        spike_index = np.where(time_ms == spike_time)[0][0]
+    # # Mark the steep RMS increase after silence with vertical lines
+    # for spike_time in valid_spikes:
+    #     # Find the index of the spike time in the time array
+    #     spike_index = np.where(time_ms == spike_time)[0][0]
         
-        # Plot a vertical line at the spike time
-        plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
+    #     # Plot a vertical line at the spike time
+    #     plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
 
-    plt.title('RMS of Audio Signal')
-    plt.xlabel('Time (milliseconds)')
-    plt.ylabel('RMS')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+    # plt.title('RMS of Audio Signal')
+    # plt.xlabel('Time (milliseconds)')
+    # plt.ylabel('RMS')
+    # plt.grid(True)
+    # plt.legend()
+    # plt.show()
     return valid_spikes
 
 def plot_rms_and_regular(audio_signal, rms_values, sr, hop_size):
@@ -144,8 +144,8 @@ def plot_rms_and_regular(audio_signal, rms_values, sr, hop_size):
     plt.tight_layout()
     plt.show()
 
-rms_vals, sr, og_signal = perform_rms("../Audio/Songs/monkeys.m4a")
-plot_rms(rms_vals, sr, 512)
+#rms_vals, sr, og_signal = perform_rms("../Audio/Songs/monkeys.m4a")
+#plot_rms(rms_vals, sr, 512)
 # plot_rms_and_regular(og_signal, rms_vals, sr, 512)
-segs = calculate_new_notes(rms_vals, 512, sr)
+#segs = calculate_new_notes(rms_vals, 512, sr)
     

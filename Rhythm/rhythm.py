@@ -41,24 +41,25 @@ def detect_notes_lengths(rms_vals, sr, seg_times, bpm=60, hop_size=512, win_size
             
             # Convert duration to note length (in terms of beats)
             beats_duration = duration_seconds / seconds_per_beat
+            
             # Determine the type of note based on beats_duration
             if beats_duration < 0.25:
                 note_type = 'Sixteenth'
             elif beats_duration < 0.5:
                 note_type = 'Eighth'
-            elif beats_duration < 1:
+            elif beats_duration < 1.1: # most end up being really close to 1 so having it be a little over
                 note_type = 'Quarter'
-            elif beats_duration < 2:
+            elif beats_duration < 2.1:
                 note_type = 'Half'
             else:
                 note_type = 'Whole'
             
+            # print(beats_duration, note_type)
             # Append the note information
             note_frequencies.append(note_type)
 
             # if the length of the note isn't the whole segment, add in a rest?
             len_of_segment = (end_sample - start_sample) * hop_size / sr
-            print(len_of_segment, duration_seconds)
             rest_duration = (len_of_segment - duration_seconds)/ seconds_per_beat
 
             if rest_duration < 0.2:
@@ -97,9 +98,9 @@ def detect_notes_lengths(rms_vals, sr, seg_times, bpm=60, hop_size=512, win_size
     return note_frequencies
 
 
-rms_vals, sr, og_signal = perform_rms("../Audio/Songs/twinkle.m4a")
+# rms_vals, sr, og_signal = perform_rms("../Audio/Songs/Twinkle_full.m4a")
 # adding in the length of the signal to seg_times
-segs = calculate_new_notes(rms_vals, 512, sr)
-segs += [len(og_signal)]
-notes = detect_notes_lengths(rms_vals, sr, segs, bpm=75)
-print(notes)
+# segs = calculate_new_notes(rms_vals, 512, sr)
+# segs += [len(og_signal)]
+# notes = detect_notes_lengths(rms_vals, sr, segs, bpm=75)
+#print(notes)
