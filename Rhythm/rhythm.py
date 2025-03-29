@@ -59,23 +59,23 @@ def detect_notes_lengths(rms_vals, sr, seg_times, bpm=60, hop_size=512, win_size
             note_frequencies.append(note_type)
 
             # if the length of the note isn't the whole segment, add in a rest?
-            len_of_segment = (end_sample - start_sample) * hop_size / sr
-            rest_duration = (len_of_segment - duration_seconds)/ seconds_per_beat
+            # len_of_segment = (end_sample - start_sample) * hop_size / sr
+            # rest_duration = (len_of_segment - duration_seconds)/ seconds_per_beat
 
-            if rest_duration < 0.2:
-                continue
-            elif rest_duration < 0.25:
-                rest_type = 'Sixteenth Rest'
-            elif rest_duration < 0.5:
-                rest_type = 'Eighth Rest'
-            elif rest_duration < 1:
-                rest_type = 'Quarter Rest'
-            elif rest_duration < 2:
-                rest_type = 'Half Rest'
-            else:
-                rest_type = 'Whole Rest'
+            # if rest_duration < 0.2:
+            #     continue
+            # elif rest_duration < 0.25:
+            #     rest_type = 'Sixteenth Rest'
+            # elif rest_duration < 0.5:
+            #     rest_type = 'Eighth Rest'
+            # elif rest_duration < 1:
+            #     rest_type = 'Quarter Rest'
+            # elif rest_duration < 2:
+            #     rest_type = 'Half Rest'
+            # else:
+            #     rest_type = 'Whole Rest'
 
-            note_frequencies.append(rest_type)
+            # note_frequencies.append(rest_type)
 
         else:
             # length of segment is length of the rest

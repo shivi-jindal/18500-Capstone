@@ -11,4 +11,5 @@ detected_notes = [freq_to_note(f) for f in detected_frequencies] #list of tuples
 # from rhythm
 note_lengths = detect_notes_lengths(rms_vals, sr, segs, bpm=75)
 
-print(len(note_lengths), len(detected_notes))
+print(len(note_lengths), len(detected_notes)) # need to add rests in pitch??
+# print(note_lengths)
