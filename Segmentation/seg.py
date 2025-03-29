@@ -69,14 +69,14 @@ def plot_rms(rms_values, sr, hop_size):
     time_ms = time_seconds * 1000
 
     # Define an epsilon for identifying near-zero RMS values
-    epsilon = 0.01  # Tolerance for RMS values close to zero
+    epsilon = 0.04  # Tolerance for RMS values close to zero
 
     # Initialize a list to store spike times (when RMS is near zero)
     
     valid_spikes = []
     peak_difference_threshold = 0.03
     min_spike_difference = 500
-    max_time_difference = 150
+    max_time_difference = 100
     
     # Iterate through the RMS values to identify near-zero spikes
     for i in range(len(rms_values)):
@@ -99,24 +99,24 @@ def plot_rms(rms_values, sr, hop_size):
     # for spike in valid_spikes:
     #     print(f"Spike at time {spike/1000:.3f} milliseconds")
 
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(time_ms, rms_values, label='RMS')
+    plt.figure(figsize=(10, 6))
+    plt.plot(time_ms, rms_values, label='RMS')
 
 
-    # # Mark the steep RMS increase after silence with vertical lines
-    # for spike_time in valid_spikes:
-    #     # Find the index of the spike time in the time array
-    #     spike_index = np.where(time_ms == spike_time)[0][0]
+    # Mark the steep RMS increase after silence with vertical lines
+    for spike_time in valid_spikes:
+        # Find the index of the spike time in the time array
+        spike_index = np.where(time_ms == spike_time)[0][0]
         
-    #     # Plot a vertical line at the spike time
-    #     plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
+        # Plot a vertical line at the spike time
+        plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
 
-    # plt.title('RMS of Audio Signal')
-    # plt.xlabel('Time (milliseconds)')
-    # plt.ylabel('RMS')
-    # plt.grid(True)
-    # plt.legend()
-    # plt.show()
+    plt.title('RMS of Audio Signal')
+    plt.xlabel('Time (milliseconds)')
+    plt.ylabel('RMS')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
     return valid_spikes
 
 def plot_rms_and_regular(audio_signal, rms_values, sr, hop_size):
@@ -144,8 +144,8 @@ def plot_rms_and_regular(audio_signal, rms_values, sr, hop_size):
     plt.tight_layout()
     plt.show()
 
-#rms_vals, sr, og_signal = perform_rms("../Audio/Songs/monkeys.m4a")
-#plot_rms(rms_vals, sr, 512)
+rms_vals, sr, og_signal = perform_rms("../Audio/Songs/hotcross_interface.m4a")
+plot_rms(rms_vals, sr, 512)
 # plot_rms_and_regular(og_signal, rms_vals, sr, 512)
 #segs = calculate_new_notes(rms_vals, 512, sr)
     
