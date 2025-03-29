@@ -74,7 +74,7 @@ def plot_rms(rms_values, sr, hop_size):
     # Initialize a list to store spike times (when RMS is near zero)
     
     valid_spikes = []
-    peak_difference_threshold = 0.03
+    peak_difference_threshold = 0.05
     min_spike_difference = 500
     max_time_difference = 100
     
@@ -82,7 +82,7 @@ def plot_rms(rms_values, sr, hop_size):
     for i in range(len(rms_values)):
         if rms_values[i] < epsilon:  # Check if RMS is close to zero
             # check if it is significantly different than last time
-            if (len(valid_spikes) == 0 or (time_ms[i] - valid_spikes[-1]) >= min_spike_difference):
+            if (len(valid_spikes) == 0) or (time_ms[i] - valid_spikes[-1]) >= min_spike_difference:
                 # spike_times.append(time_ms[i])
                 for j in range(i + 1, len(rms_values)):
                     # find the nearest peak from the spike
@@ -90,9 +90,9 @@ def plot_rms(rms_values, sr, hop_size):
                         peak_value = rms_values[j]
                         spike_value = rms_values[i]
                         # check if this was a significant increase and if spike wasn't super far away (within 150 ms)
-                        if peak_value - spike_value > peak_difference_threshold and abs(time_ms[j] - time_ms[i]) <= max_time_difference:
+                        if peak_value - spike_value > peak_difference_threshold: #and abs(time_ms[j] - time_ms[i]) <= max_time_difference:
                             valid_spikes.append(time_ms[i]) #adding in the beginning of zero time, but make add in peak time/average of the two?
-                            break
+                        break
 
     # Print out the times of the near-zero RMS spikes
     # print(f"Times where RMS is near zero (within epsilon = {epsilon}):")
