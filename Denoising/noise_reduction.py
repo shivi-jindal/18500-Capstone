@@ -58,5 +58,5 @@ class Denoising:
         
         y, sr = self.load_audio(input_file)
         
-        y_filtered = self.bandpass_filter(y, sr)
-        return y_filtered, sr
+        # y_filtered = self.bandpass_filter(y, sr)
+        return y, sr

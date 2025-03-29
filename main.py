@@ -23,7 +23,7 @@ y_filtered, sr = denoising.noise_suppression_pipeline(INPUT_FILE_NAME)
 rms_vals, sr, og_signal, segs = segmentation.segment_notes(y_filtered, sr)
 
 #get the note types
-note_types = rhythm.detect_notes_lengths(rms_vals, sr, segs, bpm=60)
+note_types = rhythm.detect_notes_lengths(rms_vals, sr, segs, BPM)
 
 #do pitch detection
 detected_frequencies = pitch.detect_notes(og_signal, sr, segs)

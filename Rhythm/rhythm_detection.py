@@ -12,11 +12,12 @@ class Rhythm:
     def __init__(self):
         return 
     
-    def detect_notes_lengths(self, rms_vals, sr, seg_times, bpm=60, hop_size=512, win_size=1024 ):
-        note_types = []
+    def detect_notes_lengths(self, rms_vals, sr, seg_times, bpm=60, hop_size=512, win_size=1024):
+        note_frequencies = []
+        
 
         # Convert BPM to seconds per beat
-        seconds_per_beat = 60 / bpm
+        seconds_per_beat = 1
         for i in range(len(seg_times) - 1):
             start_sample = int((seg_times[i] / 1000) * sr/hop_size)
             end_sample = int((seg_times[i + 1] / 1000) * sr/hop_size)
@@ -44,24 +45,20 @@ class Rhythm:
                 beats_duration = duration_seconds / seconds_per_beat
                 
                 # Determine the type of note based on beats_duration
-                def classify_note(duration, bpm):
-                    beat_duration = 60 / bpm  # Duration of a quarter note in seconds
-                    
-                    note_types = {
-                        "Whole Note": 4 * beat_duration,
-                        "Half Note": 2 * beat_duration,
-                        "Quarter Note": 1 * beat_duration,
-                        "Eighth Note": 0.5 * beat_duration,
-                        "Sixteenth Note": 0.25 * beat_duration
-                    }
-
-                    # Find the closest note type
-                    closest_note = min(note_types, key=lambda note: abs(note_types[note] - duration))
-                    return closest_note
-
+                if beats_duration < 0.25:
+                    note_type = 'Sixteenth Note'
+                elif beats_duration < 0.5:
+                    note_type = 'Eighth Note'
+                elif beats_duration < 1.1: # most end up being really close to 1 so having it be a little over
+                    note_type = 'Quarter Note'
+                elif beats_duration < 2.1:
+                    note_type = 'Half Note'
+                else:
+                    note_type = 'Whole Note'
                 
+                # print(beats_duration, note_type)
                 # Append the note information
-                note_types.append(classify_note(beats_duration, bpm))
+                note_frequencies.append(note_type)
 
                 # if the length of the note isn't the whole segment, add in a rest?
                 # len_of_segment = (end_sample - start_sample) * hop_size / sr
@@ -86,24 +83,21 @@ class Rhythm:
                 # length of segment is length of the rest
                 len_of_segment = (end_sample - start_sample) * hop_size / sr
                 rest_duration = len_of_segment / seconds_per_beat
+                if rest_duration < 0.25:
+                    rest_type = 'Sixteenth Rest'
+                elif rest_duration < 0.5:
+                    rest_type = 'Eighth Rest'
+                elif rest_duration < 1:
+                    rest_type = 'Quarter Rest'
+                elif rest_duration < 2:
+                    rest_type = 'Half Rest'
+                else:
+                    rest_type = 'Whole Rest'
 
-                def classify_rest(duration, bpm):
-                    beat_duration = 60 / bpm  # Duration of a quarter note in seconds
-                    
-                    note_types = {
-                        "Sixteenth Rest": 4 * beat_duration,
-                        "Half Rest": 2 * beat_duration,
-                        "Quarter Note": 1 * beat_duration,
-                        "Eighth Note": 0.5 * beat_duration,
-                        "Sixteenth Note": 0.25 * beat_duration
-                    }
+                note_frequencies.append(rest_type)
 
-                    # Find the closest note type
-                    closest_note = min(note_types, key=lambda note: abs(note_types[note] - duration))
-                    return closest_note
-
-                note_types.append(classify_rest(rest_duration, bpm))
-        return note_types
+        
+        return note_frequencies
 
 
     # rms_vals, sr, og_signal = perform_rms("../Audio/Songs/Twinkle_full.m4a")
