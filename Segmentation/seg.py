@@ -51,7 +51,7 @@ class Segmentation:
                     # spike_times.append(time_ms[i])
                     for j in range(i + 1, len(rms_vals)):
                         # find the nearest peak from the spike
-                        if rms_vals[j] > rms_vals[j - 1] and rms_vals[j] > rms_vals[j + 1]:  # Local peak
+                        if j < len(rms_vals) and j >= 0 and rms_vals[j] > rms_vals[j - 1] and rms_vals[j] > rms_vals[j + 1]:  # Local peak
                             peak_value = rms_vals[j]
                             spike_value = rms_vals[i]
                             # check if this was a significant increase and if spike wasn't super far away (within 150 ms)
