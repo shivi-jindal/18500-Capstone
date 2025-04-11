@@ -52,8 +52,6 @@ class Rhythm:
 
             # if the length of the note isn't the whole segment, add in a rest?
             rest_duration = ((end_sample - rest_start) * hop_size / sr)/ seconds_per_beat
-            print(note_type)
-            print(rest_duration)
             # print(len_of_segment, duration_seconds, rest_duration)
             if rest_duration < 0.4:
                 continue
@@ -69,8 +67,6 @@ class Rhythm:
                 rest_type = 'Whole Rest'
 
             note_frequencies.append(rest_type)
-
-        print(note_frequencies)
         return note_frequencies
 
 

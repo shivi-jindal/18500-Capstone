@@ -30,9 +30,10 @@ detected_frequencies = pitch.detect_notes(og_signal, sr, segs)
 detected_notes = [pitch.freq_to_note(f) for f in detected_frequencies] #list of note_nums
 
 # mapping from note type to duration
-note_durations = {"Whole Note": 4 * SECONDS_PER_BEAT, "Half Note": 2 * SECONDS_PER_BEAT, "Quarter Note": 1 * SECONDS_PER_BEAT, "Eighth Note": 0.5 * SECONDS_PER_BEAT,
-                  "Sixteenth": 0.25 * SECONDS_PER_BEAT, "Whole Rest": 4 * SECONDS_PER_BEAT, "Half Rest": 2 * SECONDS_PER_BEAT, 
-                  "Quarter Rest": 1 * SECONDS_PER_BEAT, "Eighth Rest": 0.5 * SECONDS_PER_BEAT, "Sixteenth Rest": 0.25 * SECONDS_PER_BEAT }
+note_durations = {"Whole Note": 4 * SECONDS_PER_BEAT, "Half Note": 2 * SECONDS_PER_BEAT, "Quarter Note": 1 * SECONDS_PER_BEAT, 
+                  "Eighth Note": 0.5 * SECONDS_PER_BEAT, "Sixteenth": 0.25 * SECONDS_PER_BEAT, "Whole Rest": 4 * SECONDS_PER_BEAT, 
+                  "Half Rest": 2 * SECONDS_PER_BEAT, "Quarter Rest": 1 * SECONDS_PER_BEAT, "Eighth Rest": 0.5 * SECONDS_PER_BEAT, 
+                  "Sixteenth Rest": 0.25 * SECONDS_PER_BEAT}
 
 instrument = pretty_midi.Instrument(program=73) 
 

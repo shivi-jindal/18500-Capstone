@@ -178,24 +178,23 @@ class Segmentation:
         valid_spikes.append(time_ms[i - 1])
 
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(time_ms, ste_vals, label='STE')
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(time_ms, ste_vals, label='STE')
 
 
-        # Mark the steep RMS increase after silence with vertical lines
-        for spike_time in valid_spikes:
-            # Find the index of the spike time in the time array
-            spike_index = np.where(time_ms == spike_time)[0][0]
+        # # Mark the steep RMS increase after silence with vertical lines
+        # for spike_time in valid_spikes:
+        #     # Find the index of the spike time in the time array
+        #     spike_index = np.where(time_ms == spike_time)[0][0]
             
-            # Plot a vertical line at the spike time
-            plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
+        #     # Plot a vertical line at the spike time
+        #     plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
 
-        plt.title('STE of Audio Signal')
-        plt.xlabel('Time (milliseconds)')
-        plt.ylabel('STE')
-        plt.grid(True)
-        plt.legend()
-        plt.show()                   
+        # plt.title('STE of Audio Signal')
+        # plt.xlabel('Time (milliseconds)')
+        # plt.ylabel('STE')
+        # plt.grid(True)
+        # plt.show()                   
         return valid_spikes
     
     def segment_notes(self, signal, sr, bpm):
