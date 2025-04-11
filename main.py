@@ -5,7 +5,7 @@ from Pitch.pitch import Pitch
 
 import pretty_midi
 
-INPUT_FILE_NAME = "Audio/Songs/Twinkle_full.m4a"
+INPUT_FILE_NAME = "Audio/Songs/twinkle.m4a"
 BPM = 60  #can be adjusted
 SECONDS_PER_BEAT = 60 / BPM  
 
@@ -20,7 +20,7 @@ midi = pretty_midi.PrettyMIDI()
 y_filtered, sr = denoising.noise_suppression_pipeline(INPUT_FILE_NAME)
 
 #do the note segmentation
-rms_vals, sr, og_signal, segs = segmentation.segment_notes(y_filtered, sr)
+rms_vals, sr, og_signal, segs = segmentation.segment_notes(y_filtered, sr, BPM)
 
 #get the note types
 note_types = rhythm.detect_notes_lengths(rms_vals, sr, segs, BPM)
