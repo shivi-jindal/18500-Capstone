@@ -24,13 +24,21 @@ class Rhythm:
             segment = rms_vals[start_sample:end_sample]
             max_index = np.argmax(segment)
             rest_start = end_sample
-
+            beg_rest = start_sample
+            
+            # check if the rest is in the beginning of the statement
+            for k in range(len(segment)):
+                if k < max_index and segment[k] > 0.3:
+                    beg_rest = start_sample + k
+                    break
+              
             for j in range(len(segment)):
                 if j > max_index and segment[j] <= 0.3:
                     rest_start = start_sample + j
                     break
             # Calculate the duration of this continuous segment in samples
-            duration_samples = rest_start - start_sample + 1
+            duration_samples = rest_start - beg_rest + 1
+            # duration_samples = rest_start - start_sample + 1
             duration_seconds = duration_samples * hop_size / sr
             beats_duration = duration_seconds / seconds_per_beat
             

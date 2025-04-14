@@ -158,8 +158,10 @@ class Segmentation:
         valid_spikes = []
         peak_difference_threshold = 5
         # not counting the beginning of a note time 
-        min_spike_difference = 500 # need to change this based on BPM, 100 too small for long notes but good for fast tempos
-        # min_spike_difference = bpm * 2/ 3
+        # min_spike_difference = 150 # need to change this based on BPM, 100 too small for long notes but good for fast tempos
+        beat_duration_ms = 60000 / bpm  # duration of a beat in ms
+        min_spike_difference = beat_duration_ms * 1/2  # adjust this multiplier to fine-tune
+
         max_time_difference = 150
         for i in range(len(ste_vals)):
             if ste_vals[i] < epsilon:  # Check if RMS is close to zero
@@ -167,16 +169,18 @@ class Segmentation:
                     for j in range(i + 1, len(ste_vals)):
                         # find the nearest peak from the spike
                         if (len(valid_spikes) == 0 or abs(time_ms[i] - valid_spikes[-1]) >= min_spike_difference):
-                            if j < len(ste_vals) - 1 and j >= 1 and ste_vals[j] > ste_vals[j - 1] and ste_vals[j] > ste_vals[j + 1]:  # Local peak
+                            if j < len(ste_vals) - 1 and j >= 1 and ste_vals[j] > ste_vals[j - 1]:  # Local peak
                                 peak_value = ste_vals[j]
                                 spike_value = ste_vals[i]
                                 # check if this was a significant increase and if spike wasn't super far away (within 150 ms)
-                                if peak_value - spike_value > peak_difference_threshold and abs(time_ms[j] - time_ms[i]) <= max_time_difference:
-                                    
+                                # if peak_value - spike_value > peak_difference_threshold and abs(time_ms[j] - time_ms[i]) <= max_time_difference:
+                                if abs(time_ms[j] - time_ms[i]) <= max_time_difference:  
                                     valid_spikes.append(time_ms[i]) #adding in the beginning of zero time, but make add in peak time/average of the two?
                                     break
         valid_spikes.append(time_ms[i - 1])
 
+
+        # graphing code
 
         # plt.figure(figsize=(10, 6))
         # plt.plot(time_ms, ste_vals, label='STE')
@@ -206,7 +210,7 @@ class Segmentation:
 
 
 # segmentation = Segmentation()
-# y, sr = load_audio("../Audio/Songs/twinkle.wav")
+# y, sr = load_audio("../Audio/Songs/staccato_scale_phoebe.wav")
 # ste_vals, sr, og_signal = segmentation.perform_ste(y, sr)
-# segmentation.calculate_new_notes_ste(ste_vals, sr, 512, bpm = 60)
+# segmentation.calculate_new_notes_ste(ste_vals, sr, 512, bpm = 135)
  

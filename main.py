@@ -5,7 +5,7 @@ from Pitch.pitch import Pitch
 
 import pretty_midi
 
-INPUT_FILE_NAME = "Audio/Songs/twinkle.m4a"
+INPUT_FILE_NAME = "Audio/Songs/staccato_scale_phoebe.m4a"
 BPM = 60  #can be adjusted
 SECONDS_PER_BEAT = 60 / BPM  
 
