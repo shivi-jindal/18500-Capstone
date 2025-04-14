@@ -26,7 +26,7 @@ class Denoising:
         y_denoised = nr.reduce_noise(y=y, sr=sr, y_noise=noise_part, prop_decrease=0.5)
         return y_denoised
 
-    def bandpass_filter(self, y, sr, lowcut=100, highcut=2300, order=6):
+    def bandpass_filter(self, y, sr, lowcut=100, highcut=3500, order=6):
         nyquist = 0.5 * sr  
         low = lowcut / nyquist
         high = highcut / nyquist

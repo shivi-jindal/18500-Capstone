@@ -14,20 +14,21 @@ class Pitch:
         freqs = librosa.fft_frequencies(sr=sr, n_fft=win_size)
         return D, freqs
 
-    def apply_comb_filter(self, freqs, spectrum, fundamental_range=(50, 1000)):
+    def apply_comb_filter(self, freqs, spectrum, fundamental_range=(50, 3500)):
         best_freq = None
         max_response = -np.inf
 
         for f0 in np.arange(fundamental_range[0], fundamental_range[1], 1):
             comb_filter = 0
-            for k in range(1,6):
-                diffs = np.abs(freqs - k*f0) #compute abs diffs between actual freq and freq bins
-                min_fundamental = np.argmin(diffs) #find the closest frequency bin (k) to the expected harmonic freq 
-                comb_filter += spectrum[min_fundamental] #sum up the freq response
-            
-            if comb_filter > max_response: #the f0 that gives highest sum is the best fund freq
+            for k in range(1, 5):
+                diffs = np.abs(freqs - k*f0)
+                min_idx = np.argmin(diffs)
+                comb_filter += spectrum[min_idx]
+
+            if comb_filter > max_response:
                 max_response = comb_filter
                 best_freq = f0
+
         filtered_spectrum = copy.deepcopy(spectrum)
         for k in range(2, 6):  # Removing harmonics (2nd to 5th)
             harmonic_freq = k * best_freq
@@ -81,6 +82,7 @@ class Pitch:
             spectrum = np.mean(np.abs(D), axis=1)  # Compute avg magnitude at each frequency bin
             
             fundamental_freq, spectrum, filtered_spectrum = self.apply_comb_filter(freqs, spectrum)
+            # fundamental_freq = self.apply_hps(freqs, spectrum)
             # self.plot_comb_filter(freqs, spectrum, filtered_spectrum, fundamental_freq)
 
             note_frequencies.append(fundamental_freq)
