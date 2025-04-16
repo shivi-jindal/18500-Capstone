@@ -150,13 +150,12 @@ class Segmentation:
         plt.tight_layout()
         plt.show()
     
-    def calculate_new_notes_ste(self, ste_vals, sr, hop_size, bpm):
+    def calculate_new_notes_ste(self, ste_vals, y, sr, hop_size, bpm):
         time_seconds = np.arange(0, len(ste_vals) * hop_size, hop_size) / sr
         time_ms = time_seconds * 1000
        
         epsilon = 0.5 
         valid_spikes = []
-        peak_difference_threshold = 5
         # not counting the beginning of a note time 
         # min_spike_difference = 150 # need to change this based on BPM, 100 too small for long notes but good for fast tempos
         beat_duration_ms = 60000 / bpm  # duration of a beat in ms
@@ -169,38 +168,91 @@ class Segmentation:
                     for j in range(i + 1, len(ste_vals)):
                         # find the nearest peak from the spike
                         if (len(valid_spikes) == 0 or abs(time_ms[i] - valid_spikes[-1]) >= min_spike_difference):
-                            if j < len(ste_vals) - 1 and j >= 1 and ste_vals[j] > ste_vals[j - 1]:  # Local peak
-                                peak_value = ste_vals[j]
-                                spike_value = ste_vals[i]
+                            if j >= 1 and ste_vals[j] > ste_vals[j - 1] and ste_vals[j] > epsilon:  # check for min height
                                 # check if this was a significant increase and if spike wasn't super far away (within 150 ms)
                                 # if peak_value - spike_value > peak_difference_threshold and abs(time_ms[j] - time_ms[i]) <= max_time_difference:
                                 if abs(time_ms[j] - time_ms[i]) <= max_time_difference:  
                                     valid_spikes.append(time_ms[i]) #adding in the beginning of zero time, but make add in peak time/average of the two?
                                     break
         valid_spikes.append(time_ms[i - 1])
-
-
+        slurred_notes = []
+        # look for local minimums (could be slurred notes)
+        for m in range(len(valid_spikes) - 1):
+            start_sample = int((valid_spikes[m] / 1000) * sr/hop_size)
+            end_sample = int((valid_spikes[m + 1] / 1000) * sr/hop_size)
+            segment = ste_vals[start_sample:end_sample]
+            for t in range(1, len(segment) - 1):
+                if segment[t] < segment[t - 1] and segment[t] < segment[t + 1] and segment[t] > epsilon and segment[t + 1] > epsilon:
+                    slurred_notes += [(start_sample, end_sample)]
+                    break
+        
+        # check the end as well - might be excessive
+        if len(valid_spikes) >= 2:
+            start_sample = int((valid_spikes[-2] / 1000) * sr/hop_size)
+            end_sample = int((valid_spikes[-1] / 1000) * sr/hop_size)
+            segment = ste_vals[start_sample:end_sample]
+            for t in range(1, len(segment) - 1):
+                if segment[t] < segment[t - 1] and segment[t] < segment[t + 1] and segment[t] > epsilon and segment[t + 1] > epsilon:
+                    slurred_notes += [(start_sample, end_sample)]
+                    break
+        freq_changes = self.detect_pitch_changes(slurred_notes, y, sr, 512, min_spike_difference)
+        # print(freq_changes)
         # graphing code
 
-        # plt.figure(figsize=(10, 6))
-        # plt.plot(time_ms, ste_vals, label='STE')
+        plt.figure(figsize=(10, 6))
+        plt.plot(time_ms, ste_vals, label='STE')
 
 
-        # # Mark the steep RMS increase after silence with vertical lines
-        # for spike_time in valid_spikes:
-        #     # Find the index of the spike time in the time array
-        #     spike_index = np.where(time_ms == spike_time)[0][0]
+        # Mark the steep RMS increase after silence with vertical lines
+        for spike_time in valid_spikes:
             
-        #     # Plot a vertical line at the spike time
-        #     plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
+            # Plot a vertical line at the spike time
+            plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
+        
+        for spike in freq_changes:
+            # Plot a vertical line at the spike time
+            plt.axvline(x=spike, color='green', linestyle='--', lw=2)
 
-        # plt.title('STE of Audio Signal')
-        # plt.xlabel('Time (milliseconds)')
-        # plt.ylabel('STE')
-        # plt.grid(True)
-        # plt.show()                   
+        plt.title('STE of Audio Signal')
+        plt.xlabel('Time (milliseconds)')
+        plt.ylabel('STE')
+        plt.grid(True)
+        plt.show()                   
         return valid_spikes
     
+    def detect_pitch_changes(self, note_times, y, sr, hop_size, min_diff):
+        win_size = 4056
+        D = librosa.stft(y, n_fft=win_size, hop_length=hop_size, win_length=win_size)
+        freqs = librosa.fft_frequencies(sr=sr, n_fft=win_size)
+        D_db = librosa.amplitude_to_db(np.abs(D), ref=np.max)
+        time_ms = librosa.frames_to_time(np.arange(D_db.shape[-1]), sr=sr, hop_length=hop_size) * 1000  # in milliseconds
+        freq_changes = []
+        
+        # Track the dominant frequency for each time frame
+        prev_freq = None
+        for start_time, end_time in note_times:
+            # Convert start_time and end_time to sample indices
+            
+            # Ensure indices are within bounds
+            start_sample = max(0, start_time)
+            end_sample = min(D_db.shape[-1] - 1, end_time)
+            
+            prev_freq = None
+            for t in range(start_sample, end_sample + 1):
+                freq_index = np.argmax(D_db[:, t])
+                current_freq = freqs[freq_index]
+                if prev_freq is not None:
+                    max_freq = abs(max(current_freq, prev_freq))
+                    min_freq = abs(min(current_freq, prev_freq))
+                if prev_freq is not None and max_freq/min_freq > 1.06 and (len(freq_changes) == 0 or abs(time_ms[t] - freq_changes[-1]) >= min_diff):  
+                    # Save the time of change if it exceeds the threshold
+                    freq_changes.append(time_ms[t])
+
+                # Update the previous frequency for the next comparison
+                prev_freq = current_freq
+        # print(freq_changes)
+        return freq_changes
+            
     def segment_notes(self, signal, sr, bpm):
         ste_vals, sr, og_signal = self.perform_ste(signal, sr)
         segs = self.calculate_new_notes_ste(ste_vals, sr, 512, bpm)
@@ -209,8 +261,8 @@ class Segmentation:
 
 
 
-# segmentation = Segmentation()
-# y, sr = load_audio("../Audio/Songs/staccato_scale_phoebe.wav")
-# ste_vals, sr, og_signal = segmentation.perform_ste(y, sr)
-# segmentation.calculate_new_notes_ste(ste_vals, sr, 512, bpm = 135)
+segmentation = Segmentation()
+y, sr = load_audio("../Audio/Songs/Slurred_Scale.wav")
+ste_vals, sr, og_signal = segmentation.perform_ste(y, sr)
+segmentation.calculate_new_notes_ste(ste_vals, y, sr, 512, bpm = 135)
  
