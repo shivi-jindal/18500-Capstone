@@ -22,7 +22,10 @@ class Rhythm:
             start_sample = int((seg_times[i] / 1000) * sr/hop_size)
             end_sample = int((seg_times[i + 1] / 1000) * sr/hop_size)
             segment = rms_vals[start_sample:end_sample]
-            max_index = np.argmax(segment)
+            if len(segment) != 0:
+                max_index = np.argmax(segment)
+            else:
+                max_index = start_sample
             rest_start = end_sample
             beg_rest = start_sample
             

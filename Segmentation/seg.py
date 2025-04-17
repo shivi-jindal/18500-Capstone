@@ -197,29 +197,31 @@ class Segmentation:
                     break
         freq_changes = self.detect_pitch_changes(slurred_notes, y, sr, 512, min_spike_difference)
         # print(freq_changes)
+        valid_spikes += freq_changes
+        valid_spikes = sorted(valid_spikes)
         # graphing code
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(time_ms, ste_vals, label='STE')
+        segments = []
+        for i in range(1, len(valid_spikes)):
+            if abs(valid_spikes[i] - valid_spikes[i - 1]) >= 100:
+                segments += [valid_spikes[i-1]]
 
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(time_ms, ste_vals, label='STE')
 
-        # Mark the steep RMS increase after silence with vertical lines
-        for spike_time in valid_spikes:
+        # for spike_time in segments:
             
-            # Plot a vertical line at the spike time
-            plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
+        #     # Plot a vertical line at the spike time
+        #     plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
         
-        for spike in freq_changes:
-            # Plot a vertical line at the spike time
-            plt.axvline(x=spike, color='green', linestyle='--', lw=2)
 
-        plt.title('STE of Audio Signal')
-        plt.xlabel('Time (milliseconds)')
-        plt.ylabel('STE')
-        plt.grid(True)
-        plt.show()                   
-        return valid_spikes
-    
+        # plt.title('STE of Audio Signal')
+        # plt.xlabel('Time (milliseconds)')
+        # plt.ylabel('STE')
+        # plt.grid(True)
+        # plt.show()                   
+        return segments
+
     def detect_pitch_changes(self, note_times, y, sr, hop_size, min_diff):
         win_size = 4056
         D = librosa.stft(y, n_fft=win_size, hop_length=hop_size, win_length=win_size)
@@ -227,24 +229,20 @@ class Segmentation:
         D_db = librosa.amplitude_to_db(np.abs(D), ref=np.max)
         time_ms = librosa.frames_to_time(np.arange(D_db.shape[-1]), sr=sr, hop_length=hop_size) * 1000  # in milliseconds
         freq_changes = []
-        
-        # Track the dominant frequency for each time frame
+        threshold = 1
+        # print(min_diff)
+        if min_diff > 300:
+            threshold += 0.1
         prev_freq = None
         for start_time, end_time in note_times:
-            # Convert start_time and end_time to sample indices
-            
-            # Ensure indices are within bounds
-            start_sample = max(0, start_time)
-            end_sample = min(D_db.shape[-1] - 1, end_time)
-            
             prev_freq = None
-            for t in range(start_sample, end_sample + 1):
+            for t in range(start_time, end_time + 1):
                 freq_index = np.argmax(D_db[:, t])
                 current_freq = freqs[freq_index]
                 if prev_freq is not None:
                     max_freq = abs(max(current_freq, prev_freq))
                     min_freq = abs(min(current_freq, prev_freq))
-                if prev_freq is not None and max_freq/min_freq > 1.06 and (len(freq_changes) == 0 or abs(time_ms[t] - freq_changes[-1]) >= min_diff):  
+                if prev_freq is not None and max_freq/min_freq > threshold and (len(freq_changes) == 0 or abs(time_ms[t] - freq_changes[-1]) >= min_diff):  
                     # Save the time of change if it exceeds the threshold
                     freq_changes.append(time_ms[t])
 
@@ -255,14 +253,15 @@ class Segmentation:
             
     def segment_notes(self, signal, sr, bpm):
         ste_vals, sr, og_signal = self.perform_ste(signal, sr)
-        segs = self.calculate_new_notes_ste(ste_vals, sr, 512, bpm)
+        segs = self.calculate_new_notes_ste(ste_vals, signal, sr, 512, bpm)
         # segs += [len(og_signal) * 512 * 1000 / sr] # multiply by the hop_size and convert to ms
         return ste_vals, sr, og_signal, segs
 
 
 
-segmentation = Segmentation()
-y, sr = load_audio("../Audio/Songs/Slurred_Scale.wav")
-ste_vals, sr, og_signal = segmentation.perform_ste(y, sr)
-segmentation.calculate_new_notes_ste(ste_vals, y, sr, 512, bpm = 135)
+# segmentation = Segmentation()
+# y, sr = load_audio("../Audio/Songs/Slurred_Scale.wav")
+# ste_vals, sr, og_signal = segmentation.perform_ste(y, sr)
+# segmentation.calculate_new_notes_ste(ste_vals, y, sr, 512, bpm = 100)
  
+#try modifying ratio ... or smoothing of the signal

@@ -5,8 +5,8 @@ from Pitch.pitch import Pitch
 
 import pretty_midi
 
-INPUT_FILE_NAME = "Audio/Songs/staccato_scale_phoebe.m4a"
-BPM = 135  #can be adjusted
+INPUT_FILE_NAME = "Audio/Songs/twinkle.m4a"
+BPM = 60  #can be adjusted
 SECONDS_PER_BEAT = 60 / BPM  
 
 #initialize all required classes
@@ -24,10 +24,10 @@ rms_vals, sr, og_signal, segs = segmentation.segment_notes(y_filtered, sr, BPM)
 
 #get the note types
 note_types = rhythm.detect_notes_lengths(rms_vals, sr, segs, BPM)
+print(note_types)
 
 #do pitch detection
 detected_frequencies = pitch.detect_notes(og_signal, sr, segs)
-print("freqs", detected_frequencies)
 detected_notes = [pitch.freq_to_note(f) for f in detected_frequencies] #list of note_nums
 
 # mapping from note type to duration
