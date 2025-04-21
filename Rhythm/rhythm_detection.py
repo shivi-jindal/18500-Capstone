@@ -29,6 +29,23 @@ class Rhythm:
             rest_start = end_sample
             beg_rest = start_sample
             
+            if max(segment) <= 0.3:
+                rest_duration = ((end_sample - start_sample) * hop_size / sr )/ seconds_per_beat
+                if rest_duration < 0.5:
+                    rest_type = "skip"
+                if rest_duration < 0.75:
+                    rest_type = 'Sixteenth Rest'
+                elif rest_duration < 1:
+                    rest_type = 'Eighth Rest'
+                elif rest_duration < 2:
+                    rest_type = 'Quarter Rest'
+                elif rest_duration < 3:
+                    rest_type = 'Half Rest'
+                else:
+                    rest_type = 'Whole Rest'
+                note_frequencies.append(rest_type)
+                continue
+
             # check if the rest is in the beginning of the statement
             for k in range(len(segment)):
                 if k < max_index and segment[k] > 0.3:
@@ -44,7 +61,11 @@ class Rhythm:
             # duration_samples = rest_start - start_sample + 1
             duration_seconds = duration_samples * hop_size / sr
             beats_duration = duration_seconds / seconds_per_beat
-            
+            # if the length of the note isn't the whole segment, add in a rest?
+            rest_duration = ((end_sample - rest_start) * hop_size / sr)/ seconds_per_beat
+            # rest_duration = (end_sample - rest_start)
+            if rest_duration < 0.5:
+                beats_duration += rest_duration
             # Determine the type of note based on beats_duration
             if beats_duration < 0.25:
                 note_type = 'Sixteenth Note'
@@ -61,12 +82,11 @@ class Rhythm:
             # Append the note information
             note_frequencies.append(note_type)
 
-            # if the length of the note isn't the whole segment, add in a rest?
-            rest_duration = ((end_sample - rest_start) * hop_size / sr)/ seconds_per_beat
+            
             # print(len_of_segment, duration_seconds, rest_duration)
-            if rest_duration < 0.4:
+            if rest_duration < 0.5:
                 continue
-            elif rest_duration < 0.5:
+            elif rest_duration < 0.75:
                 rest_type = 'Sixteenth Rest'
             elif rest_duration < 1:
                 rest_type = 'Eighth Rest'
@@ -80,11 +100,11 @@ class Rhythm:
             note_frequencies.append(rest_type)
         return note_frequencies
 
-
-    # rms_vals, sr, og_signal = perform_rms("../Audio/Songs/Twinkle_full.m4a")
-    # adding in the length of the signal to seg_times
-    # segs = calculate_new_notes(rms_vals, 512, sr)
-    # segs += [len(og_signal)]
+    # segmentation = Segmentation()
+    # rms_vals, sr, og_signal = ste("../Audio/Songs/Twinkle_full.m4a")
+    # # adding in the length of the signal to seg_times
+    # segs = segment_notes(rms_vals, 512, sr)
+    # # segs += [len(og_signal)]
     # notes = detect_notes_lengths(rms_vals, sr, segs, bpm=75)
-    #print(notes)
+    # print(notes)
 

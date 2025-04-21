@@ -5,8 +5,8 @@ from Pitch.pitch import Pitch
 
 import pretty_midi
 
-INPUT_FILE_NAME = "Audio/Songs/twinkle.m4a"
-BPM = 60  #can be adjusted
+INPUT_FILE_NAME = "Audio/Songs/Slurred_Scale.m4a"
+BPM = 135  #can be adjusted
 SECONDS_PER_BEAT = 60 / BPM  
 
 #initialize all required classes
@@ -24,7 +24,7 @@ rms_vals, sr, og_signal, segs = segmentation.segment_notes(y_filtered, sr, BPM)
 
 #get the note types
 note_types = rhythm.detect_notes_lengths(rms_vals, sr, segs, BPM)
-print(note_types)
+
 
 #do pitch detection
 detected_frequencies = pitch.detect_notes(og_signal, sr, segs)
@@ -43,10 +43,11 @@ for i in range(len(detected_notes)):
     note_num = detected_notes[i]
     note_type = note_types[i]
     duration = note_durations.get(note_type, SECONDS_PER_BEAT)
-    if "rest" not in note_type:
+    if "Rest" not in note_type:
         note = pretty_midi.Note(velocity=100, pitch=note_num, start=start_time, end=start_time + duration)
         instrument.notes.append(note)
-    start_time += duration  
+    if "skip" not in note_type:
+        start_time += duration  
 
 midi.instruments.append(instrument)
 
