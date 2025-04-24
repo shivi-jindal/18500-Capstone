@@ -5,7 +5,7 @@ from Pitch.pitch import Pitch
 
 import pretty_midi
 
-INPUT_FILE_NAME = "Audio/Songs/Slurred_Scale.m4a"
+INPUT_FILE_NAME = "Audio/Songs/Staccato_comp_phoebe.m4a"
 BPM = 135  #can be adjusted
 SECONDS_PER_BEAT = 60 / BPM  
 
@@ -25,7 +25,6 @@ rms_vals, sr, og_signal, segs = segmentation.segment_notes(y_filtered, sr, BPM)
 #get the note types
 note_types = rhythm.detect_notes_lengths(rms_vals, sr, segs, BPM)
 
-
 #do pitch detection
 detected_frequencies = pitch.detect_notes(og_signal, sr, segs)
 detected_notes = [pitch.freq_to_note(f) for f in detected_frequencies] #list of note_nums
@@ -42,8 +41,9 @@ start_time = 0
 for i in range(len(detected_notes)):
     note_num = detected_notes[i]
     note_type = note_types[i]
-    duration = note_durations.get(note_type, SECONDS_PER_BEAT)
-    if "Rest" not in note_type:
+    if "skip" not in note_type:
+        duration = note_durations.get(note_type, SECONDS_PER_BEAT)
+    if "Rest" not in note_type and note_num != 31:
         note = pretty_midi.Note(velocity=100, pitch=note_num, start=start_time, end=start_time + duration)
         instrument.notes.append(note)
     if "skip" not in note_type:

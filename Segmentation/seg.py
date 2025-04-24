@@ -206,20 +206,20 @@ class Segmentation:
             if abs(valid_spikes[i] - valid_spikes[i - 1]) >= 100:
                 segments += [valid_spikes[i-1]]
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(time_ms, ste_vals, label='STE')
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(time_ms, ste_vals, label='STE')
 
-        for spike_time in segments:
+        # for spike_time in segments:
             
-            # Plot a vertical line at the spike time
-            plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
+        #     # Plot a vertical line at the spike time
+        #     plt.axvline(x=spike_time, color='red', linestyle='-', lw=2)
         
 
-        plt.title('STE of Audio Signal')
-        plt.xlabel('Time (milliseconds)')
-        plt.ylabel('STE')
-        plt.grid(True)
-        plt.show()                   
+        # plt.title('STE of Audio Signal')
+        # plt.xlabel('Time (milliseconds)')
+        # plt.ylabel('STE')
+        # plt.grid(True)
+        # plt.show()                   
         return segments
 
     def detect_pitch_changes(self, note_times, y, sr, hop_size, min_diff):
